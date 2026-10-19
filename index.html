@@ -1548,8 +1548,6 @@ main{padding:56px 0 100px;}
 
 /* ============================================================
    COPY PROTECTION
-   Any domain other than rv-lorenzzo.github.io = copy = banner
-   file:// and localhost always safe
    ============================================================ */
 const RV_CONFIG = { deployedURL: "rv-lorenzzo.github.io" };
 (function(){
@@ -1592,7 +1590,7 @@ const LINKS = {
 };
 
 /* ============================================================
-   ONESHOT EXTRAS — diagrams, examples, summaries, hidden lines
+   ONESHOT EXTRAS
    ============================================================ */
 const ONESHOT_EXTRAS = [
   { title: "All Diagrams & Tables", meta: "OneShot · Video", url: "https://www.youtube.com/live/JY59ct7PVsM" },
@@ -1651,7 +1649,7 @@ const WEIGHTAGE = [
 ];
 
 /* ============================================================
-   BOTANY
+   BOTANY (Added Aakansha Mam)
    ============================================================ */
 const BOTANY = [
   {
@@ -1703,16 +1701,35 @@ const BOTANY = [
     pickTag: "Genetics",
     playlist: LINKS.rupesh,
     lectures: []
+  },
+  {
+    name: "Aakansha Mam",
+    subject: "Botany",
+    note: "Complete playlist",
+    pickTag: null,
+    playlist: "https://youtube.com/playlist?list=PLMlC_IwQbWlE",
+    lectures: []
   }
 ];
 
 /* ============================================================
-   ZOOLOGY
+   ZOOLOGY (Added Aakansha Mam playlist2 + Vipin Sir time stamps)
    ============================================================ */
 const ZOOLOGY = [
   { name: "Samapti Mam", subject: "Zoology", note: "OneShot", pickTag: "All chapters", playlist: LINKS.samapti, lectures: [] },
   { name: "Seep Ma'am", subject: "Zoology", note: "Resonates with students", pickTag: null, playlist: LINKS.seep, lectures: [] },
-  { name: "Aakansha Mam", subject: "Zoology", note: "Complete playlist", pickTag: null, playlist: LINKS.aakansha, lectures: [] },
+  { 
+    name: "Aakansha Mam", 
+    subject: "Zoology", 
+    note: "Class 11 + Class 12 playlists", 
+    pickTag: null, 
+    playlist: LINKS.aakansha, 
+    playlist2: {
+      label: "Class 12 Playlist",
+      url: "https://youtube.com/playlist?list=PL8_1l_iSLgySbc4z_zuXsAF5JPef8cxfX"
+    },
+    lectures: [] 
+  },
   {
     name: "Vipin Sharma Sir",
     subject: "Zoology",
@@ -1721,10 +1738,10 @@ const ZOOLOGY = [
     playlist: LINKS.vipin11,
     lectures: [],
     extraLectures: [
-      { title: "Human Reproduction + Reproductive Health", url: "https://youtu.be/_b-1QhndGZ8" },
-      { title: "Evolution", url: "https://youtu.be/KyN-ClKuoeI" },
-      { title: "Biotechnology", url: "https://youtu.be/M-H9I027lAI" },
-      { title: "Human Health and Disease", url: "https://youtu.be/0ifwCQdKviw" }
+      { title: "Human Reproduction (0:00–2:49:05) + Reproductive Health (2:49:05–3:53:00)", url: "https://youtu.be/_b-1QhndGZ8" },
+      { title: "Evolution (0:00–2:45:25)", url: "https://youtu.be/KyN-ClKuoeI" },
+      { title: "Biotechnology 1 (0:00–2:28:30) + Biotech 2 (2:28:30–4:04:59)", url: "https://youtu.be/M-H9I027lAI" },
+      { title: "Human Health and Disease (1:46:11–4:39:05)", url: "https://youtu.be/0ifwCQdKviw" }
     ]
   }
 ];
@@ -1905,7 +1922,7 @@ const makeId = (s, t, l) => s + "-" + t + "-" + l;
 const isWatched = id => watched[id] === true;
 
 /* ============================================================
-   LECTURE / TEACHER RENDERING
+   LECTURE / TEACHER RENDERING (Updated for Playlist2)
    ============================================================ */
 function lectureHTML(l, k, offset, subject, teacherIdx, extra) {
   const id = makeId(subject, teacherIdx, extra ? "extra-" + k : k);
@@ -1924,13 +1941,19 @@ function teacherHTML(t, i, subject) {
   const parts = [];
 
   if (t.playlist) {
-    parts.push('<div class="playlist-row"><a class="playlist-btn" href="' + esc(t.playlist) + '" target="_blank" rel="noopener"><span class="pl-icon">▶</span> Full playlist ↗</a></div>');
-  } else {
+    parts.push('<div class="playlist-row"><a class="playlist-btn" href="' + esc(t.playlist) + '" target="_blank" rel="noopener"><span class="pl-icon">▶</span> ' + (subject === "Zoology" && t.name === "Aakansha Mam" ? "Class 11 Playlist" : "Full playlist") + ' ↗</a></div>');
+  }
+  
+  if (t.playlist2) {
+    parts.push('<div class="playlist-row"><a class="playlist-btn" href="' + esc(t.playlist2.url) + '" target="_blank" rel="noopener"><span class="pl-icon">▶</span> ' + esc(t.playlist2.label) + ' ↗</a></div>');
+  }
+
+  if (!t.playlist && !t.playlist2) {
     parts.push('<div class="playlist-row"><span class="th-noplay">No single playlist — lectures below</span></div>');
   }
 
   if (main.length) {
-    if (t.playlist) parts.push('<div class="lect-divider">In the playlist</div>');
+    if (t.playlist || t.playlist2) parts.push('<div class="lect-divider">In the playlist</div>');
     parts.push('<ul class="lecture-list">' + main.map((l, k) => lectureHTML(l, k, 0, subject, i, false)).join("") + '</ul>');
   }
 
@@ -1938,7 +1961,7 @@ function teacherHTML(t, i, subject) {
     parts.push('<div class="lect-divider">Not in the playlist</div><ul class="lecture-list">' + extra.map((l, k) => lectureHTML(l, k, main.length, subject, i, true)).join("") + '</ul>');
   }
 
-  if (!main.length && !extra.length && t.playlist) {
+  if (!main.length && !extra.length && (t.playlist || t.playlist2)) {
     parts.push('<p class="th-empty">Use the playlist above — it covers every chapter.</p>');
   }
 
@@ -2039,7 +2062,7 @@ if (weightageBody) {
 }
 
 /* ============================================================
-   FAQ RENDERING — THE KEY PART
+   FAQ RENDERING
    ============================================================ */
 const faqList = document.getElementById("faqList");
 if (faqList) {
@@ -2325,9 +2348,6 @@ if (reduce) {
   setTimeout(() => { if (loader && !loader.classList.contains("is-done")) completeLoader(); }, 3500);
 }
 
-/* ============================================================
-   INITIALISE
-   ============================================================ */
 refreshAllProgress();
 
 })();
